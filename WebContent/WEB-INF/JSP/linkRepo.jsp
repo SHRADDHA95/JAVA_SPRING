@@ -14,4 +14,6 @@
 <head>
 <link href="https://fonts.googleapis.com/css?family=Open+Sans"
 	rel="stylesheet">
+<script
+    src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.15.0/jquery.validate.min.js"></script>
 </head>

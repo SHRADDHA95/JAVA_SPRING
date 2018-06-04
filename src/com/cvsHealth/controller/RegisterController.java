@@ -33,10 +33,13 @@ public class RegisterController {
 		System.out.println("password: " + user.getPassword());
 		System.out.println("email: " + user.getEmail());
 		System.out.println("birth date: " + user.getDOB());
+		for (String lang : user.getFavLanguages()) {
 
+			System.out.println("Fav lang:" + lang);
+		}
 		if (id.equals("2")) {
 			model.addAttribute("userForm", user);
-			return "RegistrationSuccess";
+			return "redirect:/";
 		} else
 
 			return "redirect:/userList";
