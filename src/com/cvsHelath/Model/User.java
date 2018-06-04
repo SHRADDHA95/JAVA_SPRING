@@ -6,7 +6,16 @@ public class User {
 	private String email;
 	private String DOB;
 	private String username;
+	private String[] favLanguages;
 	// SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM-dd-yyyy");
+
+	public String[] getFavLanguages() {
+		return favLanguages;
+	}
+
+	public void setFavLanguages(String[] favLanguages) {
+		this.favLanguages = favLanguages;
+	}
 
 	public String getId() {
 		return id;
@@ -17,7 +26,6 @@ public class User {
 	}
 
 	private String id;
-	
 
 	public String getUsername() {
 		return username;
@@ -56,5 +64,6 @@ public class User {
 	public String toString() {
 		return "User [password=" + password + ", email=" + email + ", DOB=" + DOB + ", username=" + username + "]";
 	}
+	
 
 }
