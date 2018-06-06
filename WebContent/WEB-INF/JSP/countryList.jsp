@@ -210,6 +210,7 @@
 		
 	 location.reload();
 	 });
+ 
  $('#confirmClose').on('click', function() {
 		
 	 location.reload();

@@ -2,6 +2,7 @@ package com.cvsHealth.controller;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.rmi.StubNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,9 +13,11 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.cvsHealth.AppData.JSONReader;
 import com.cvsHealth.AppData.JSONWriter;
+import com.cvsHealth.CustomExceptionHandler.UserNotFoundException;
 import com.cvsHelath.Model.User;
 
 @Controller
@@ -23,11 +26,12 @@ public class ViewUserResult {
 
 	/* Populate list on JSP */
 	@RequestMapping
-	public String listEmployee(Model model)  {
+	public String listEmployee(Model model) {
 		try {
 			System.out.println("ViewUserResult Controller");
-			
-            model.addAttribute("lists", this.getUserList());
+			JSONReader reader = new JSONReader();
+			List<User> valFromJSON = reader.readFromJSON();
+			model.addAttribute("lists", valFromJSON);
 			return "userList";
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -37,7 +41,7 @@ public class ViewUserResult {
 
 	/* Remove selected user */
 	@RequestMapping(value = "/remove", method = RequestMethod.POST)
-	public String removeUser(@RequestParam("username") String username,Model model)
+	public String removeUser(@RequestParam("username") String username,RedirectAttributes redirectAttributes)
 			throws FileNotFoundException, IOException, ParseException {
 		try {
 			JSONReader reader = new JSONReader();
@@ -55,12 +59,11 @@ public class ViewUserResult {
 				System.out.println("USERNAME NOT FOUND**********");
 			}
 			JSONWriter.writeJSON(list);
-			model.addAttribute("lists", this.getUserList());
-			model.addAttribute("successMessage", "User Deleted Successfully");
-			return "userList";
+			redirectAttributes.addFlashAttribute("successMessage", "User Deleted Successfully");
+			return "redirect:/userList";
 		} catch (Exception e) {
 			e.printStackTrace();
-			model.addAttribute("errorMessage", "Unable to Delete User. Please Login Again");
+			redirectAttributes.addFlashAttribute("errorMessage", "Unable to Delete User. Please Login Again");
 			return "redirect:/login";
 		}
 	}
@@ -72,6 +75,7 @@ public class ViewUserResult {
 		return new User();
 	}
 
+	@SuppressWarnings("null")
 	@RequestMapping(value = "/update", method = RequestMethod.POST)
 	public String updateUser(User user, Model model) throws FileNotFoundException, IOException, ParseException {
 		try {
@@ -93,15 +97,15 @@ public class ViewUserResult {
 					}
 				}
 			} else {
-				System.out.println("USERNAME NOT FOUND**********");
+				throw new UserNotFoundException("Could not find user with name " + user.getUsername());
 			}
-
+			
 			JSONWriter.writeJSON(list);
 			model.addAttribute("lists", this.getUserList());
 			model.addAttribute("successMessage", "User updated Successfully");
 			return "userList";
 
-			//return "redirect:/userList";
+			// return "redirect:/userList";
 
 		} catch (Exception e) {
 
@@ -109,9 +113,8 @@ public class ViewUserResult {
 			return null;
 		}
 	}
-	
-	
-	public List<User> getUserList() throws FileNotFoundException, IOException, ParseException{
+
+	public List<User> getUserList() throws FileNotFoundException, IOException, ParseException {
 		JSONReader reader = new JSONReader();
 		List<User> valFromJSON = reader.readFromJSON();
 		return valFromJSON;

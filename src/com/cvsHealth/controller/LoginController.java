@@ -2,20 +2,22 @@ package com.cvsHealth.controller;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.json.simple.parser.ParseException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import com.cvsHealth.AppData.JSONReader;
+import com.cvsHealth.CustomExceptionHandler.UserNotFoundException;
+import com.cvsHealth.service.UserAuthentication;
+import com.cvsHealth.service.UserAuthenticationService;
 import com.cvsHelath.Model.User;
 
 @Controller
@@ -33,38 +35,31 @@ public class LoginController {
 		return new User();
 	}
 
+	@Autowired
+	UserAuthenticationService userAuthenticationService;
+	
+	
 	@RequestMapping(value = "success", method = RequestMethod.POST)
-	public String processRegistration(User user, Model model, HttpServletRequest req, HttpServletResponse res)
-			throws FileNotFoundException, IOException, ParseException {
+	public String processRegistration(User user, Model model, HttpServletRequest req, HttpServletResponse res){
 
 		// for testing purpose
-
 		System.out.println("username: " + user.getUsername());
 		System.out.println("password: " + user.getPassword());
 		model.addAttribute("loginCredentials", user);
+		try {
+			if (userAuthenticationService.verifyuser(user)) {
 
-		/** Validating user credentials **/
-		JSONReader reader = new JSONReader();
-		List<User> valFromJSON = reader.readFromJSON();
-		if (user != null) {
-			for (User u : valFromJSON) {
-				String uName = u.getUsername();
-				String uPassword = u.getPassword();
-				if ((uName.equals(user.getUsername())) && (uPassword.equals(user.getPassword()))) {
-                
-					HttpSession session=req.getSession();
-                    session.setAttribute("userKey", u);
-                
-                
-					return "loginSuccess";
-
-				}
-
+				HttpSession session = req.getSession();
+				session.setAttribute("userKey", user);
+				return "loginSuccess";
 			}
+
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
 		}
-
 		return "error";
-
 	}
+
+	/* return "error"; */
 
 }
